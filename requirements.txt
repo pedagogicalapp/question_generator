@@ -8,3 +8,4 @@ pybase64
 bing_image_downloader
 gsheetsdb
 gspread_pandas
+streamlit_analytics
