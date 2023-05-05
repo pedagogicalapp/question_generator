@@ -17,6 +17,7 @@ ai.api_key = st.secrets["openai_api_key"]
 API_KEY = st.secrets["openai_api_key"]
 API_ENDPOINT = "https://api.openai.com/v1/chat/completions"
 model = 'gpt-4'
+#
 
 def split(a, n):
     k, m = divmod(len(a), n)
