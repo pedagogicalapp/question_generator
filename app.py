@@ -5,7 +5,6 @@ import pandas as pd
 from google.oauth2 import service_account
 from gspread_pandas import Spread,Client
 import gspread_pandas
-import streamlit_analytics
 import requests
 import json
 from htmldocx import HtmlToDocx
