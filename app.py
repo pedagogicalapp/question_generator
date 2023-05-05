@@ -9,7 +9,6 @@ import streamlit_analytics
 import requests
 import json
 from htmldocx import HtmlToDocx
-from docx import Document
 import base64
 from datetime import datetime
 
