@@ -66,13 +66,13 @@ streamlit_analytics.start_tracking()
 
 st.header('Exam Question Generator')
 st.sidebar.image('pedagogical_18.png')
-st.sidebar.markdown("This worksheet generator was created using OpenAI's generative AI. Please use it carefully and check any output before using it with learners as it could be biased or wrong. ")
+st.sidebar.markdown("This worksheet generator was created using OpenAI's generative AI. Please use it carefully and check any output before using it with learners as it could be biased or wrong. Send any comments or questions to phil@pedagogical.app")
 st.markdown("Other Pedagogical apps to check out: [worksheet generator](https://pedagogical.app/) and [knowledge organiser generator](https://pedagogical-knowledge-organiser.streamlit.app/)")
 
 email = st.text_input('Email')
 subject = st.radio('Subject', ['History', 'Geography', 'RS', 'Philosophy'])
 
-output_type = st.radio('Generation Type', ['Individual Questions', 'Question Bank'])
+output_type = st.radio('Generation Type', ['Individual Questions', 'Question Bank'], help="A Question Bank will include a question for all elements of the curriculum.")
 if subject == 'History':
 
 
@@ -301,148 +301,149 @@ if subject == 'History':
                     update_the_spreadsheet('Sheet1',df)
 
     else:
-        exam = st.radio('Exam Boards', ['Edexcel GCSE', 'AQA GCSE'])
-        if exam == 'Edexcel GCSE':
-            question_type = st.radio('Question Type', ['Edexcel 16 Mark', 'Edexcel 12 Mark Explain'])
-            topic = st.radio('Topic', ['crime_and_punishment'])
-            scope = ['https://spreadsheets.google.com/feeds']
+    #     exam = st.radio('Exam Boards', ['Edexcel GCSE', 'AQA GCSE'])
+    # if exam == 'Edexcel GCSE':
+        question_type = st.radio('Question Type', ['Edexcel GCSE 16 Mark', 'Edexcel GCSE 12 Mark Explain'])
+        topic = st.radio('Topic', ['crime_and_punishment_in_britain_c1000_present', 'medicine_in_britain_c1250_present', 
+        'war_and_british_society_c1250_present', 'migrants_in_britain_c800_present'])
+        scope = ['https://spreadsheets.google.com/feeds']
 
-            credentials = service_account.Credentials.from_service_account_info(
-                            st.secrets["gcp_service_account"], scopes = scope)
-            client = Client(scope=scope,creds=credentials)
-            spreadsheetname = st.secrets["gsheets_curricula"]
-            spread = Spread(spreadsheetname,client = client)
-            df = spread.sheet_to_df(index=False)
-            df = df.loc[df['topic'] == topic]
-            content = list(df.content.values)
-            content_len = len(content)
-            pieces = round(content_len/10)
+        credentials = service_account.Credentials.from_service_account_info(
+                        st.secrets["gcp_service_account"], scopes = scope)
+        client = Client(scope=scope,creds=credentials)
+        spreadsheetname = st.secrets["gsheets_curricula"]
+        spread = Spread(spreadsheetname,client = client)
+        df = spread.sheet_to_df(index=False)
+        df = df.loc[df['topic'] == topic]
+        content = list(df.content.values)
+        content_len = len(content)
+        pieces = round(content_len/10)
+        
+
+        full_question_bank = []
+        prompts = []
+        
             
+        if question_type == 'Edexcel GCSE 12 Mark Explain':
+            content_list = split(content, pieces)
+            for c in content_list:
+                c = " ".join(c)
 
-            full_question_bank = []
-            prompts = []
-            
-                
-            if question_type == 'Edexcel 12 Mark Explain':
-                content_list = split(content, pieces)
-                for c in content_list:
-                    c = " ".join(c)
-
-                    prompt = f"""
-                    The following examples are in the format of topic | Question :
-
-                Changes in medicine and healthcare in Britain in the twentieth century | Explain why there was rapid change in the treatment of illness in Britain during the
-                        twentieth century.  \n  You may use the following in your answer: \n 
-                        • magic bullets \n 
-                        • high-tech treatment \n 
-                        You must also use information of your own. \n (12)
-
-                Changes in punishment in 18th to 20th century Britain   |  Explain why there were changes in the prison system in the period c1700–c1900. \n You may use the following in your answer: \n 
-                • John Howard \n
-                • hard labour \n 
-                You must also use information of your own. \n (12)
-
-                    Northern Ireland Troubles   |  Explain why the Northern Ireland Troubles had such a significant impact on the lives of ordinary people in the region between 1960 and 1980. You may use the following in your answer: \n 
-                    • Internment policy \n 
-                    • British Army presence \n 
-                    You must also use information of your own. (12) 
-
-
-                British migration in the 19th and 18th century | Explain why migration to Britain increased during the eighteenth and nineteenth centuries.
-                You may use the following in your answer:
-                • Industrial Revolution
-                • British Empire
-                You must also use information of your own. (12)
-
-
-                Create questions similar to the two examples above but using the following topics. Do not include the topic and begin the questions with 'Explain why':
-
-                    {c}
-                """
-                    prompts.append(prompt)
-
-            elif  question_type == 'Edexcel 16 Mark':
-                content_list = split(content, pieces)
-                for c in content_list:
-                    c = " ".join(c)
-                    prompt = f"""
+                prompt = f"""
                 The following examples are in the format of topic | Question :
 
-        Witchcraft in Early Modern England | ‘The role of religion was the main reason why there were changes in the number of accusations of witchcraft in the early modern period (c1500–c1700). \n How far do you agree? Explain your answer. \ You may use the following in your answer: 
-        - religious beliefs, 
-        - Matthew Hopkins \n 
-        You must also use information of your own. \n (16)
+            Changes in medicine and healthcare in Britain in the twentieth century | Explain why there was rapid change in the treatment of illness in Britain during the
+                    twentieth century.  \n  You may use the following in your answer: \n 
+                    • magic bullets \n 
+                    • high-tech treatment \n 
+                    You must also use information of your own. \n (12)
 
-        Kings in 16th century England | ‘Financial difficulties were the most significant problem faced by Henry in the years 1520–29.’  \n How far do you agree? Explain your answer. \ You may use the following in your answer: 
-        - the Amicable Grant 
-        - Catherine of Aragon \n 
-        You must also use information of your own. \n (16)
+            Changes in punishment in 18th to 20th century Britain   |  Explain why there were changes in the prison system in the period c1700–c1900. \n You may use the following in your answer: \n 
+            • John Howard \n
+            • hard labour \n 
+            You must also use information of your own. \n (12)
 
-        Power in England in the 11th century | ‘The main consequence of William I’s policy of Normanisation was increased control of the Church in England.’  \n How far do you agree? Explain your answer. \ You may use the following in your answer: 
-        - bishops
-        - landholding \n 
-        You must also use information of your own. \n (16)
+                Northern Ireland Troubles   |  Explain why the Northern Ireland Troubles had such a significant impact on the lives of ordinary people in the region between 1960 and 1980. You may use the following in your answer: \n 
+                • Internment policy \n 
+                • British Army presence \n 
+                You must also use information of your own. (12) 
 
-            Create questions similar to the two examples above but using the following topics. Do not include the topic:
+
+            British migration in the 19th and 18th century | Explain why migration to Britain increased during the eighteenth and nineteenth centuries.
+            You may use the following in your answer:
+            • Industrial Revolution
+            • British Empire
+            You must also use information of your own. (12)
+
+
+            Create questions similar to the two examples above but using the following topics. Do not include the topic and begin the questions with 'Explain why':
 
                 {c}
             """
-                    prompts.append(prompt)
-            
-            generate_button = st.button('Generate Qs')
-            if generate_button:
-                with st.spinner(text="Your questions are in the oven 🧠 ... This could take several minutes. If you want to work with Pedagogical to improve the app please click [here](https://forms.gle/jDy1WNgrnCTWsDG16) ... Thank you!"):
-                    for i, prompt_ind in enumerate(prompts):
-                        print(i)
-                        iteration = i + 1
-                        num_prompts = len(prompts)
-                        st.text(f"{iteration} of {num_prompts} steps complete")
-                        
-                        generated_qs = generate_chat_completion(model, prompt_ind)
-                        full_question_bank.append(generated_qs)
-                    st.markdown(question_type)
-                    st.markdown('These Questions were generated using AI and should be treated carefully.')
-                    # st.markdown(generated_qs)
-                    qs_completed = " ".join(full_question_bank)
-                    st.markdown(qs_completed)
+                prompts.append(prompt)
+
+        elif  question_type == 'Edexcel GCSE 16 Mark':
+            content_list = split(content, pieces)
+            for c in content_list:
+                c = " ".join(c)
+                prompt = f"""
+            The following examples are in the format of topic | Question :
+
+    Witchcraft in Early Modern England | ‘The role of religion was the main reason why there were changes in the number of accusations of witchcraft in the early modern period (c1500–c1700). \n How far do you agree? Explain your answer. \ You may use the following in your answer: 
+    - religious beliefs, 
+    - Matthew Hopkins \n 
+    You must also use information of your own. \n (16)
+
+    Kings in 16th century England | ‘Financial difficulties were the most significant problem faced by Henry in the years 1520–29.’  \n How far do you agree? Explain your answer. \ You may use the following in your answer: 
+    - the Amicable Grant 
+    - Catherine of Aragon \n 
+    You must also use information of your own. \n (16)
+
+    Power in England in the 11th century | ‘The main consequence of William I’s policy of Normanisation was increased control of the Church in England.’  \n How far do you agree? Explain your answer. \ You may use the following in your answer: 
+    - bishops
+    - landholding \n 
+    You must also use information of your own. \n (16)
+
+        Create questions similar to the two examples above but using the following topics. Do not include the topic:
+
+            {c}
+        """
+                prompts.append(prompt)
+        
+        generate_button = st.button('Generate Qs')
+        if generate_button:
+            with st.spinner(text="Your questions are in the oven 🧠 ... This could take several minutes. If you want to work with Pedagogical to improve the app please click [here](https://forms.gle/jDy1WNgrnCTWsDG16) ... Thank you!"):
+                for i, prompt_ind in enumerate(prompts):
+                    print(i)
+                    iteration = i + 1
+                    num_prompts = len(prompts)
+                    st.text(f"{iteration} of {num_prompts} steps complete")
                     
-                    
-                    # f = open('worksheet.html','w')
-                    # f.write(qs_completed)
-                    # f.close()
-                    # new_parser = HtmlToDocx()
-                    # new_parser.parse_html_file("worksheet.html", "worksheet")
-                    # file_path = 'worksheet.docx'
-                    # with open(file_path,"rb") as f:
-                    #     base64_word = base64.b64encode(f.read()).decode('utf-8')
+                    generated_qs = generate_chat_completion(model, prompt_ind)
+                    full_question_bank.append(generated_qs)
+                st.markdown(question_type)
+                st.markdown('These Questions were generated using AI and should be treated carefully.')
+                # st.markdown(generated_qs)
+                qs_completed = " ".join(full_question_bank)
+                st.markdown(qs_completed)
+                
+                
+                # f = open('worksheet.html','w')
+                # f.write(qs_completed)
+                # f.close()
+                # new_parser = HtmlToDocx()
+                # new_parser.parse_html_file("worksheet.html", "worksheet")
+                # file_path = 'worksheet.docx'
+                # with open(file_path,"rb") as f:
+                #     base64_word = base64.b64encode(f.read()).decode('utf-8')
 
-                    # with open("worksheet.docx", "rb") as word_file:
-                    #     wordbyte = word_file.read()
+                # with open("worksheet.docx", "rb") as word_file:
+                #     wordbyte = word_file.read()
 
-                    # downloaded = st.download_button(label="Download Word Document", 
-                    # data=wordbyte,
-                    # file_name=f"{question_type}_questions.docx",
-                    # mime='application/octet-stream')
+                # downloaded = st.download_button(label="Download Word Document", 
+                # data=wordbyte,
+                # file_name=f"{question_type}_questions.docx",
+                # mime='application/octet-stream')
 
-                    credentials = service_account.Credentials.from_service_account_info(
-                        st.secrets["gcp_service_account"], scopes = scope)
-                    client = Client(scope=scope,creds=credentials)
-                    spreadsheetname = st.secrets["private_gsheets_qg_analytics"]
-                    spread = Spread(spreadsheetname,client = client)
-                    read_df = spread.sheet_to_df(index=False)
-                    emails = list(read_df.emails.values)
-                    prompts = list(read_df.prompts.values)
-                    dates = list(read_df.dates.values)
+                credentials = service_account.Credentials.from_service_account_info(
+                    st.secrets["gcp_service_account"], scopes = scope)
+                client = Client(scope=scope,creds=credentials)
+                spreadsheetname = st.secrets["private_gsheets_qg_analytics"]
+                spread = Spread(spreadsheetname,client = client)
+                read_df = spread.sheet_to_df(index=False)
+                emails = list(read_df.emails.values)
+                prompts = list(read_df.prompts.values)
+                dates = list(read_df.dates.values)
 
-                    today = datetime.now()
-                    emails.append(email)
-                    prompts.append(topic)
-                    dates.append(today)
-                    def update_the_spreadsheet(spreadsheetname,dataframe):
-                        spread.df_to_sheet(dataframe,sheet = spreadsheetname,index = False)
-                    d = {'emails': emails, 'prompts': prompts, 'dates': dates}
-                    df = pd.DataFrame(data=d)
-                    update_the_spreadsheet('Sheet1',df)
+                today = datetime.now()
+                emails.append(email)
+                prompts.append(topic)
+                dates.append(today)
+                def update_the_spreadsheet(spreadsheetname,dataframe):
+                    spread.df_to_sheet(dataframe,sheet = spreadsheetname,index = False)
+                d = {'emails': emails, 'prompts': prompts, 'dates': dates}
+                df = pd.DataFrame(data=d)
+                update_the_spreadsheet('Sheet1',df)
 
 elif subject != 'History':
     st.markdown("This subject is not yet released")
