@@ -294,7 +294,7 @@ if subject == 'History':
 
                     today = datetime.now()
                     emails.append(email)
-                    prompts.append(topic)
+                    prompts.append(q_topic)
                     dates.append(today)
                     def update_the_spreadsheet(spreadsheetname,dataframe):
                         spread.df_to_sheet(dataframe,sheet = spreadsheetname,index = False)
@@ -308,6 +308,7 @@ if subject == 'History':
         question_type = st.radio('Question Type', ['Edexcel GCSE 16 Mark', 'Edexcel GCSE 12 Mark Explain'])
         topic = st.radio('Topic', ['crime_and_punishment_in_britain_c1000_present', 'medicine_in_britain_c1250_present', 
         'war_and_british_society_c1250_present', 'migrants_in_britain_c800_present'])
+        
         scope = ['https://spreadsheets.google.com/feeds']
 
         credentials = service_account.Credentials.from_service_account_info(
