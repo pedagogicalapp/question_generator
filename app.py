@@ -66,7 +66,7 @@ streamlit_analytics.start_tracking()
 
 st.header('Exam Question Generator')
 st.sidebar.image('pedagogical_18.png')
-st.sidebar.markdown("This worksheet generator was created using OpenAI's generative AI. Please use it carefully and check any output before using it with learners as it could be biased or wrong. Send any comments or questions to phil@pedagogical.app")
+st.sidebar.markdown("This worksheet generator was created using OpenAI's generative AI. Please use it carefully and check any output before using it with learners as it could be biased or wrong. Send any comments or questions to phil@pedagogical.app. The specifications on which these questions are based can be found [here](https://qualifications.pearson.com/content/dam/pdf/GCSE/History/2016/specification-and-sample-assessments/gcse-9-1-history-specification.pdf) and [here](https://www.aqa.org.uk/subjects/history/gcse/history-8145/assessment-resources) ")
 st.markdown("Other Pedagogical apps to check out: [worksheet generator](https://pedagogical.app/) and [knowledge organiser generator](https://pedagogical-knowledge-organiser.streamlit.app/)")
 
 email = st.text_input('Email')
